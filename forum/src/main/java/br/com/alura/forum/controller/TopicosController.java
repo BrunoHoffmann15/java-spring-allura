@@ -8,15 +8,19 @@ import br.com.alura.forum.modelo.Topico;
 import br.com.alura.forum.repository.CursoRepository;
 import br.com.alura.forum.repository.TopicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,16 +36,13 @@ public class TopicosController {
 
     @GetMapping
     public Page<TopicoDto> listar(@RequestParam(required = false) String nomeCurso,
-                                  @RequestParam int pagina,
-                                  @RequestParam int qnt) {
-
-        Pageable paginacao = PageRequest.of(pagina, qnt);
+                                  @PageableDefault(sort= "dataCriacao", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<Topico> topicos;
 
         if (nomeCurso == null)
-            topicos = topicoRepository.findAll(paginacao);
+            topicos = topicoRepository.findAll(pageable);
         else
-            topicos = topicoRepository.findByCursoNome(nomeCurso, paginacao);
+            topicos = topicoRepository.findByCursoNome(nomeCurso, pageable);
 
         return TopicoDto.converter(topicos);
     }
